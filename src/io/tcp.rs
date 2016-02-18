@@ -72,6 +72,8 @@ impl Listener {
         };
         match accept_result {
             Some((stream, _)) => {
+                stream.set_nodelay(true).unwrap();
+                println!("set nodelay");
                 let handle = match register_new_handle(&stream) {
                     Err(e) => return Promise::err(Error::new(self, e)),
                     Ok(v) => v,
@@ -135,6 +137,8 @@ impl Stream {
     pub fn connect(addr: ::std::net::SocketAddr) -> Promise<Stream, ::std::io::Error> {
         Promise::ok(()).then(move |()| {
             let stream = pry!(::mio::tcp::TcpStream::connect(&addr));
+            stream.set_nodelay(true).unwrap();
+            println!("set nodelay");
 
             // TODO: if we're not already connected, maybe only register writable interest,
             // and then reregister with read/write interested once we successfully connect.
